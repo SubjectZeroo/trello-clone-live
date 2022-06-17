@@ -1,14 +1,6 @@
 import { createStore } from 'vuex'
-
+import boardModule from './boardModule'
+import userModule from './userModule'
 export default createStore({
-  state: {
-  },
-  getters: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
-  modules: {
-  }
-})
+  modules: { boardModule, userModule }
+});
