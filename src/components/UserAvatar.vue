@@ -9,11 +9,11 @@ export default {
   name: "UserAvatar",
   setup() {
     const store = useStore();
-    const UserAvatar = computed(
+    const userAvatar = computed(
       () => store.getters["userModule/getUserAvatar"]
     );
 
-    return { UserAvatar };
+    return { userAvatar };
   },
 };
 </script>

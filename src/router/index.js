@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from '../views/AuthView.vue'
 
 const routes = [
@@ -18,19 +18,19 @@ const routes = [
       {
         path: "card/:id",
         name: "card",
-        component: () => import(/* webpackChunkName: "board" */ '../views/CardView.vue'),
+        component: () => import(/* webpackChunkName: "card" */ '../views/CardView.vue'),
       }
     ]
   },
   {
     path: "/:pathMatch(.*)*",
     name: "notFound",
-    component: () => import(/* webpackChunkName: "board" */ '../views/NotFoundView.vue'),
+    component: () => import(/* webpackChunkName: "notofound" */ '../views/NotFoundView.vue'),
   }
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 

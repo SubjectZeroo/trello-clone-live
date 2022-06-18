@@ -24,7 +24,7 @@
         class="bg-gray-300 rounded p-1 text-gray-600 text-sm mr-3"
       />
       <UserAvatar />
-      <a href="" class="ml-2 text-sm"></a>
+      <a @click="userLogout" href="#" class="ml-2 text-sm">Logout</a>
     </div>
   </div>
 </template>
@@ -33,13 +33,21 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import UserAvatar from "@/components/UserAvatar.vue";
+import router from "@/router";
 export default {
   name: "NavBar",
   setup() {
     const store = useStore();
     const boardName = computed(() => store.getters["boardModule/getBoardName"]);
-
-    return { boardName };
+    async function userLogout() {
+      try {
+        await store.dispatch("userModule/userLogout");
+        router.push("/");
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    return { boardName, userLogout };
   },
   components: {
     UserAvatar,
