@@ -9,7 +9,7 @@ export default {
   getters: {
     getUserAvatar: state => state.user && state.user.photoURL
   },
-  mutation: {
+  mutations: {
     setUser(state, user) {
       state.user = user
     }

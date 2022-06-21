@@ -24,7 +24,7 @@ export default {
   setup() {
     const store = useStore();
     const columns = computed({
-      get: () => store.state.boardModule.columns,
+      get: () => store.getters["boardModule/getColumns"],
       set: (value) => store.dispatch("boardModule/updateColumns", value),
     });
 
