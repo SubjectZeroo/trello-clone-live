@@ -1,7 +1,12 @@
 <template>
   <div class="column p-3 mr-4 rounded bg-gray-199 cursor-move">
     <div class="flex justify-between">
-      <a href="#" class="text-sm text-right block text text-gray-600">
+      <a
+        v-show="emptyColumn"
+        @click="deleteColumn"
+        href="#"
+        class="text-sm text-right block text text-gray-600"
+      >
         Delete
       </a>
       <a href="#" class="text-sm text-right block text-gray-600">
@@ -9,6 +14,8 @@
       </a>
     </div>
     <h3
+      contenteditable
+      @blur="onEdit"
       class="
         mb-3
         text-gray-700
@@ -29,6 +36,25 @@ export default {
   props: {
     column: {
       type: Object,
+    },
+  },
+  computed: {
+    emptyColumn() {
+      return (
+        this.$store.getters["boardModule/getCardsByColumn"](this.column.id)
+          .length === 0
+      );
+    },
+  },
+  methods: {
+    onEdit(evt) {
+      this.$store.dispatch("boardModule/updateColumnName", {
+        id: this.column.id,
+        name: evt.target.innerText,
+      });
+    },
+    deleteColumn() {
+      this.$store.dispatch("boardModule/deleteColumn", this.column.id);
     },
   },
 };

@@ -55,7 +55,7 @@ export default {
       try {
         await store.dispatch("boardModule/createColumn");
       } catch (error) {
-        console.error(error);
+        console.error(error.message);
       }
     }
     return { boardName, userLogout, createColumn };

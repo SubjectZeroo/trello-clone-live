@@ -15,9 +15,8 @@ export default {
       state.cards
         .filter(card => card.column === column)
         .sort((a, b) => a.order - b.order),
-    getNextColumnOrder: state => {
-      Math.max(...state.columns.map(column => column.order)) + 1
-    }
+    getNextColumnOrder: state =>
+        Math.max(...state.columns.map(column => column.order)) + 1,
   },
   mutations: {
     setBoard(state, board) {
@@ -28,10 +27,10 @@ export default {
     }
   },
   actions:{
-    async getBoard({rootState, commit}) {
+    async getBoard({ rootState, commit }) {
       const uid = rootState.userModule.user.uid;
       const defaultBoard = {
-        name: "Your firts board",
+        name: "Your first board 🔥",
         id: uid,
         backgroundColor: "#FFFFFF"
       };
@@ -41,7 +40,7 @@ export default {
         .doc(uid)
         .get();
 
-      if(!board.exists) {
+      if (!board.exists) {
         await db
           .collection("boards")
           .doc(uid)
@@ -50,9 +49,11 @@ export default {
       } else {
         board = board.data();
       }
+
       commit("setBoard", board);
     },
-    async getColumns({ commit, rootState }){
+    // Column actions
+    async getColumns({ commit, rootState }) {
       await db
         .collection("columns")
         .where("board", "==", rootState.userModule.user.uid)
@@ -67,8 +68,8 @@ export default {
       }
     },
     async createColumn({ rootState, state, getters }) {
-      const ref = db.collection("columns")
-      const { id } = ref.doc()
+      const ref = db.collection("columns");
+      const { id } = ref.doc();
       const column = {
         name: "New Column",
         id,
@@ -77,8 +78,25 @@ export default {
       };
       await ref.doc(id).set(column);
     },
-    updateColumns(context, columns) {
-      console.log(columns)
+    updateColumns({ dispatch }, columns) {
+      columns.forEach((column, index) => {
+        if(column.order !== index) {
+          column.order = index;
+          dispatch("updateColumnOrder", column);
+        }
+      });
+    },
+    async updateColumnOrder(context, column) {
+      await db.collection("columns").doc(column.id).update({ order: column.order })
+    },
+    async updateColumnName(context, { id, name }) {
+      await db
+        .collection("columns")
+        .doc(id)
+        .update({ name });
+    },
+    async deleteColumn(context, id) {
+      await db.collection("columns").doc(id).delete();
     },
     updateCards(context, {column, cards}) {
       console.log(column, cards)
