@@ -17,6 +17,8 @@ export default {
         .sort((a, b) => a.order - b.order),
     getNextColumnOrder: state =>
         Math.max(...state.columns.map(column => column.order)) + 1,
+    getNextCardOrder: state =>
+        Math.max(...state.cards.map(card => card.order)) + 1,
   },
   mutations: {
     setBoard(state, board) {
@@ -24,6 +26,9 @@ export default {
     },
     setColumns(state, columns) {
       state.columns = columns;
+    },
+    setCards(state, cards) {
+      state.cards = cards;
     }
   },
   actions:{
@@ -98,8 +103,54 @@ export default {
     async deleteColumn(context, id) {
       await db.collection("columns").doc(id).delete();
     },
-    updateCards(context, {column, cards}) {
-      console.log(column, cards)
+
+    async getCards({commit, rootState}) {
+      await db
+        .collection("cards")
+        .where("board", "===", rootState.userModule.user.uid)
+        .onSnapshot(doSnapshot);
+
+        function doSnapshot(querySnapshot) {
+          const cards = []
+          querySnapshot.forEach(doc => {
+            cards.push(doc.data())
+          });
+
+          commit("setCards", cards);
+        }
+    },
+
+    async createCard({rootState, state, getters}, column) {
+      const ref = db.collection("cards");
+      const { id } = ref.doc();
+      const card = {
+        name: "New Card",
+        description: "This is a Card description",
+        id,
+        board: rootState.userModule.user.uid,
+        column,
+        date: new Date().getTime() + 5 * 24 * 60 * 60 * 1000,
+        done: false,
+        order: state.cards.length ? getters["getNextCardOrder"] : 0
+      };
+
+      await ref.doc(id).set(card);
+    },
+    async updateCardMeta(context, card) {
+      await db
+        .collection("cards")
+        .doc(card.id)
+        .update({order: card.order, column: card.column});
+        
+    },
+    updateCards({dispatch}, {column, cards}) {
+      cards.forEach((card, index) => {
+        if(card.order !== index || card.column !== column.id) {
+          card.order = index;
+          card.column = column.id;
+          dispatch("updateCardMeta", card);
+        }
+      });
     }
   }
-}
+};
