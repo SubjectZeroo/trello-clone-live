@@ -1,5 +1,6 @@
 // import { board, columns, cards } from "@/seed";
 import { db } from "@/firabase";
+import { useStore } from "vuex";
 
 export default {
   namespaced: true,
@@ -107,7 +108,7 @@ export default {
     async getCards({commit, rootState}) {
       await db
         .collection("cards")
-        .where("board", "===", rootState.userModule.user.uid)
+        .where("board", "==", rootState.userModule.user.uid)
         .onSnapshot(doSnapshot);
 
         function doSnapshot(querySnapshot) {
@@ -143,6 +144,31 @@ export default {
         .update({order: card.order, column: card.column});
         
     },
+
+    checkCard({ state }, id) {
+      const store = useStore();
+      return new Promise((resolve, reject) => {
+        //Buscamos localmente en el estado
+        if(state.cards.length) {
+          findCard();
+        } else {
+          const unsubscribe = store.subscribe(mutation => {
+            if(mutation.type === "boardModule/setCards") {
+              findCard();
+              unsubscribe();
+            }
+          });
+        }
+        function findCard() {
+          const card = state.cards.find(card => card.id === id)
+          if (card) {
+            resolve(card)
+          } else {
+            reject("Card not found")
+          }
+        }
+      });
+    },
     updateCards({dispatch}, {column, cards}) {
       cards.forEach((card, index) => {
         if(card.order !== index || card.column !== column.id) {
@@ -151,6 +177,14 @@ export default {
           dispatch("updateCardMeta", card);
         }
       });
+    },
+
+    async updateCard(context, card) {
+      const [ id, key, value ] = Object.values(card)
+      await db
+        .collection("cards")
+        .doc(id)
+        .update({ [key]: value })
     }
   }
 };

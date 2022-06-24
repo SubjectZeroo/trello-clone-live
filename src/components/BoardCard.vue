@@ -1,5 +1,6 @@
 <template>
   <div
+    @click="openCard"
     class="
       px-3
       pt-3
@@ -25,7 +26,7 @@
 <script>
 import { computed } from "@vue/reactivity";
 import UserAvatar from "@/components/UserAvatar.vue";
-
+import { useRouter } from "vue-router";
 export default {
   name: "BoardCard",
   props: {
@@ -34,7 +35,12 @@ export default {
     },
   },
   setup(props) {
+    const router = useRouter();
+    const openCard = () => {
+      router.push({ name: "card", params: { id: props.card.id } });
+    };
     return {
+      openCard,
       cardDate: computed(() =>
         new Date(+props.card.date).toLocaleDateString("es-Es")
       ),
