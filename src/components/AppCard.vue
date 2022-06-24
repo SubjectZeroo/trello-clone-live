@@ -1,5 +1,6 @@
 <template>
   <div
+    @click.self="closeCard"
     class="
       wrapper
       w-full
@@ -26,12 +27,14 @@
             ml-2
             font-sans
             tracking-wide
-            text-2x1 text-center
+            text-2xl text-center
           "
         >
           {{ card.name }}
         </h1>
-        <a href="#" class="flex-grow block text-right">Delete Card</a>
+        <a @click="deleteCard" href="#" class="flex-grow block text-right"
+          >Delete Card</a
+        >
       </div>
       <div class="flex justify-between items-center my-3">
         <div>
@@ -50,7 +53,11 @@
           @change="updateCard('date', $event)"
         />
       </div>
-      <p class="text-x1" @blur="updateCard('description', $event)">
+      <p
+        contenteditable
+        class="text-xl"
+        @blur="updateCard('description', $event)"
+      >
         {{ card.description }}
       </p>
     </div>
@@ -58,9 +65,10 @@
 </template>
 
 <script>
-import UserAvatar from "./UserAvatar.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 import { computed } from "@vue/reactivity";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 export default {
   name: "AppCard",
   props: {
@@ -70,6 +78,8 @@ export default {
   },
   setup(props) {
     const store = useStore();
+    const router = useRouter();
+
     const cardDate = computed(() =>
       new Date(props.card.date).toLocaleDateString("en-CA")
     );
@@ -79,6 +89,7 @@ export default {
         key,
         value: getValue(),
       });
+
       function getValue() {
         if (key === "name" || key === "description") {
           return evt.target.innerText;
@@ -89,9 +100,16 @@ export default {
         }
       }
     };
+    const closeCard = () => router.go(-1);
+    const deleteCard = () => {
+      store.dispatch("boardModule/deleteCard", props.card.id);
+      closeCard();
+    };
     return {
       cardDate,
       updateCard,
+      closeCard,
+      deleteCard,
     };
   },
   components: { UserAvatar },
@@ -102,3 +120,4 @@ export default {
   background-color: rgba(0, 0, 0, 0.8);
 }
 </style>
+

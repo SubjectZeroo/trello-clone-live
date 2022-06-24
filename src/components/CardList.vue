@@ -23,11 +23,11 @@ export default {
     const cards = computed({
       get: () => store.getters["boardModule/getCardsByColumn"](props.column.id),
       set: (value) =>
-        store.dispatch[
-          ("boardModule/updateCards", { column: props.column, cards: value })
-        ],
+        store.dispatch("boardModule/updateCards", {
+          column: props.column,
+          cards: value,
+        }),
     });
-
     return { cards };
   },
   components: {

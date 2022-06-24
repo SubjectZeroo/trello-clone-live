@@ -7,14 +7,15 @@ export default {
   state: {
     board: {},
     columns: [],
-    cards: []
+    cards: [],
+    searchTerm: ""
   },
   getters: {
-    getBoardName: state => state.board.name,
+    // getBoardName: state => state.board.name,
     getColumns: state => state.columns.sort((a, b) => a.order - b.order),
     getCardsByColumn: state => column => 
       state.cards
-        .filter(card => card.column === column)
+        .filter(card => card.column === column && card.name.match(new RegExp(state.searchTerm, "i")))
         .sort((a, b) => a.order - b.order),
     getNextColumnOrder: state =>
         Math.max(...state.columns.map(column => column.order)) + 1,
@@ -30,6 +31,9 @@ export default {
     },
     setCards(state, cards) {
       state.cards = cards;
+    },
+    setSearchTerm(state, searchTerm) {
+      state.searchTerm = searchTerm;
     }
   },
   actions:{
@@ -57,6 +61,13 @@ export default {
       }
 
       commit("setBoard", board);
+    },
+    async updateBoard(context, board) {
+      const [id, key, value] = Object.values(board)
+      await db
+        .collection("boards")
+        .doc(id)
+        .update({[key]: value});
     },
     // Column actions
     async getColumns({ commit, rootState }) {
@@ -141,7 +152,7 @@ export default {
       await db
         .collection("cards")
         .doc(card.id)
-        .update({order: card.order, column: card.column});
+        .update({ order: card.order, column: card.column });
         
     },
 
@@ -186,5 +197,14 @@ export default {
         .doc(id)
         .update({ [key]: value })
     }
+  },
+
+  async deleteCard(context,id) {
+    await db
+      .collection("cards")
+      .doc(id)
+      .delete();
   }
+
+
 };
